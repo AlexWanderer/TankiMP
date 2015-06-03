@@ -3,19 +3,41 @@
 /// </summary>
 
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 
 
 public class Game : MonoBehaviour {
 
+    public Image LoadScreen;
+
+    public RectTransform SpawnWindow;
+
+    public RectTransform TeamsWindow;
+
     public GameObject PlayerPrefab;
 
     private GameObject player;
 
+    private bool playerSpawned = false;
+
+    private int team = -1;
+
+    private GameObject levelSettings;
+
+    private LevelSettings levelConfig;
+
+    private bool levelSynced = false;
+
+    private PhotonView photonView;
 
     public void Awake()
     {
+        LoadScreen.gameObject.SetActive(true); //Пока все не загрузилось, кажем загрузочный экран
+
+        photonView = GetComponent<PhotonView>();
 
         if (!PhotonNetwork.connected)
         {
@@ -23,10 +45,77 @@ public class Game : MonoBehaviour {
             return;
         }
 
-        player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, transform.position, Quaternion.identity, 0) as GameObject;
+      //  player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, transform.position, Quaternion.identity, 0) as GameObject;
+
+        if (PhotonNetwork.isMasterClient) // Если мы сервер, запускаем процедуру инициализации уровня
+        {
+            LevelSettings s = levelSettings.GetComponent<LevelSettings>();
+            levelConfig = s;
+
+            photonView.RPC("SyncLevelSettings", PhotonTargets.OthersBuffered, s.name, s.HasTeams, s.Bots, s.RoundTime);
+            levelSynced = true;
+        }
 
     }
 
+    [RPC]
+    public void SyncLevelSettings(string levelName, bool teams, bool bots, float roundTime)
+    {
+        if (levelSettings == null)
+        {
+            levelSettings = GameObject.Find("LevelSettings");     
+        }
+
+        LevelSettings config = levelSettings.GetComponent<LevelSettings>();
+
+        config.LevelName = levelName;
+        config.HasTeams = teams;
+        config.Bots = bots;
+        config.RoundTime = roundTime;
+        config.LoadLevel();
+        levelConfig = config;
+
+        levelSynced = true;
+
+    }
+
+    void Update()
+    {
+        if (levelSynced && !playerSpawned)
+        {
+            SpawnWindow.gameObject.SetActive(true); //Если не еще не заспавнились, кажем диалог выбора команды и кнопку спавна.
+            if (levelConfig.HasTeams)
+            {
+                TeamsWindow.gameObject.SetActive(true);
+
+            }
+        }
+    }
+
+
+    public void SpawnPlayer()  //Внешняя функция спавна из соответствующего меню. Выполняет проверку на принадлежность к команде
+    {
+        if (levelConfig.HasTeams && (team == -1))
+        {
+            return; // Если команда не выбрана (-1), а уровень командный, то спавниться не будем
+        }
+        else
+        {
+            CreatePlayer();
+            playerSpawned = true;
+        }
+    }
+
+    void CreatePlayer()
+    {
+        Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length)];
+        player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0) as GameObject;
+    }
+
+    public void SetPlayerTeam(int teamID)
+    {
+        team = teamID;
+    }
 
     public void OnMasterClientSwitched(PhotonPlayer player)
     {

@@ -24,6 +24,12 @@ public class Lobby : MonoBehaviour {
 
     private string roomName;
 
+    private GameObject levelSettings;
+
+    public string[] Levels; //Список уровней
+
+    public string LevelName = "TestLevel";
+
     private bool connectFailed = false;
 
     private bool connected = false;
@@ -101,8 +107,19 @@ public class Lobby : MonoBehaviour {
 
     }
 
+    public void SetLevelSettings(string levelName, bool teams, bool bots, float roundTime)
+    {
+        LevelSettings config = levelSettings.GetComponent<LevelSettings>();
+        config.LevelName = LevelName;
+        config.HasTeams = teams;
+        config.Bots = bots;
+        config.RoundTime = roundTime;
+    }
+
     public void CreateRoom()
     {
+        //Placeholder:
+        SetLevelSettings("TestLevel", true, false, 240f);
 
         PhotonNetwork.CreateRoom(this.roomName, new RoomOptions() { maxPlayers = 10 }, null);
        
