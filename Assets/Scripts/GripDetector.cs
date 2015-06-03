@@ -26,7 +26,7 @@ public class GripDetector : MonoBehaviour {
 
     void Start()
     {
-        Collider[] cols = GetComponentsInChildren<CapsuleCollider>();
+        Collider[] cols = GetComponents<CapsuleCollider>();
         rightTrack = cols[0];
         leftTrack = cols[1];
     }

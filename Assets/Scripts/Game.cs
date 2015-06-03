@@ -49,26 +49,41 @@ public class Game : MonoBehaviour {
 
         if (PhotonNetwork.isMasterClient) // Если мы сервер, запускаем процедуру инициализации уровня
         {
+            if (levelSettings == null)
+            {
+                levelSettings = GameObject.Find("LevelSettings");
+            }
+
             LevelSettings s = levelSettings.GetComponent<LevelSettings>();
             levelConfig = s;
 
-            photonView.RPC("SyncLevelSettings", PhotonTargets.OthersBuffered, s.name, s.HasTeams, s.Bots, s.RoundTime);
+            photonView.RPC("SyncLevelSettings", PhotonTargets.OthersBuffered, s.LevelName, s.HasTeams, s.Bots, s.RoundTime);
+            s.LoadLevel();
             levelSynced = true;
         }
 
     }
 
     [RPC]
-    public void SyncLevelSettings(string levelName, bool teams, bool bots, float roundTime)
+    public void SyncLevelSettings(string lvlName, bool teams, bool bots, float roundTime)
     {
         if (levelSettings == null)
         {
-            levelSettings = GameObject.Find("LevelSettings");     
+            if (!(GameObject.Find("LevelSettings")))
+            {
+                levelSettings = new GameObject();
+                levelSettings.AddComponent<LevelSettings>();
+            }
+            else
+            {
+                levelSettings = GameObject.Find("LevelSettings");
+            }
+            
         }
 
         LevelSettings config = levelSettings.GetComponent<LevelSettings>();
 
-        config.LevelName = levelName;
+        config.LevelName = lvlName;
         config.HasTeams = teams;
         config.Bots = bots;
         config.RoundTime = roundTime;
@@ -86,9 +101,15 @@ public class Game : MonoBehaviour {
             SpawnWindow.gameObject.SetActive(true); //Если не еще не заспавнились, кажем диалог выбора команды и кнопку спавна.
             if (levelConfig.HasTeams)
             {
+                LoadScreen.gameObject.SetActive(false);
                 TeamsWindow.gameObject.SetActive(true);
 
             }
+        }
+        else
+        {
+            SpawnWindow.gameObject.SetActive(false);
+            TeamsWindow.gameObject.SetActive(false);
         }
     }
 
@@ -102,14 +123,17 @@ public class Game : MonoBehaviour {
         else
         {
             CreatePlayer();
+
             playerSpawned = true;
+
         }
     }
 
     void CreatePlayer()
     {
-        Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length)];
+        Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length - 1)];
         player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0) as GameObject;
+        
     }
 
     public void SetPlayerTeam(int teamID)

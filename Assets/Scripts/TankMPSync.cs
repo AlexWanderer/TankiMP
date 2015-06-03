@@ -34,10 +34,10 @@ public class TankMPSync : Photon.MonoBehaviour
         {
 
             //Update remote player (smooth this, this looks good, at the cost of some accuracy)
-            controls.gameObject.transform.position = Vector3.Lerp(controls.gameObject.transform.position, correctPlayerPos, Time.deltaTime * 5);
-            controls.gameObject.transform.rotation = Quaternion.Lerp(controls.gameObject.transform.rotation, correctPlayerRot, Time.deltaTime * 5);
-            controls.Head.transform.rotation = Quaternion.Lerp(controls.Head.transform.rotation, correctPlayerHeadRot, Time.deltaTime * 5);
-            controls.Barrel.transform.rotation = Quaternion.Lerp(controls.Barrel.transform.rotation, correctBarrelRot, Time.deltaTime * 5);
+            controls.gameObject.transform.position = Vector3.Lerp(controls.gameObject.transform.position, correctPlayerPos, Time.deltaTime * 12f);
+            controls.gameObject.transform.rotation = Quaternion.Lerp(controls.gameObject.transform.rotation, correctPlayerRot, Time.deltaTime * 12f);
+            controls.Head.transform.rotation = Quaternion.Lerp(controls.Head.transform.rotation, correctPlayerHeadRot, Time.deltaTime * 12);
+            controls.Barrel.transform.rotation = Quaternion.Lerp(controls.Barrel.transform.rotation, correctBarrelRot, Time.deltaTime * 14);
 
         }
         else

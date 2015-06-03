@@ -8,7 +8,9 @@ using System.Collections;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-public class Lobby : MonoBehaviour {
+public class Lobby : Photon.MonoBehaviour {
+
+    private bool connectedToPUN = false;
 
     public string RoomName 
     {
@@ -56,6 +58,8 @@ public class Lobby : MonoBehaviour {
 
     public void Awake()
     {
+        levelSettings = GameObject.Find("LevelSettings");
+
         // this makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
         PhotonNetwork.automaticallySyncScene = true;
 
@@ -120,14 +124,20 @@ public class Lobby : MonoBehaviour {
     {
         //Placeholder:
         SetLevelSettings("TestLevel", true, false, 240f);
-
-        PhotonNetwork.CreateRoom(this.roomName, new RoomOptions() { maxPlayers = 10 }, null);
+        if (true) //Добавить проверку на присоединение к мастер-серверу
+        {
+            PhotonNetwork.CreateRoom(this.roomName, new RoomOptions() { maxPlayers = 10 }, null);
+        }
+        
        
     }
 
     public void JoinRandomRoom()
     {
-        PhotonNetwork.JoinRandomRoom();
+        if (true) //Добавить проверку на присоединение к мастер-серверу
+        {
+            PhotonNetwork.JoinRandomRoom();
+        }
     }
 
     public void OnJoinedRoom()
@@ -152,6 +162,10 @@ public class Lobby : MonoBehaviour {
         Debug.Log("OnFailedToConnectToPhoton. StatusCode: " + parameters + " ServerAddress: " + PhotonNetwork.networkingPeer.ServerAddress);
     }
 
+    public void OnConnectedToLobby()
+    {
+        connectedToPUN = true;
+    }
 
 	
 }

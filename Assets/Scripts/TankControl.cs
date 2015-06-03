@@ -56,17 +56,26 @@ public class TankControl : Photon.MonoBehaviour
     GripDetector grDetect;
     bool hasGrip;
 
+    private ShootController marker;
+
     void Start()
     {
         body = GetComponent<Rigidbody>();
         body.centerOfMass = transform.Find("MassCenter").transform.localPosition;
         grDetect = GetComponent<GripDetector>();
+
+        if (photonView.isMine)
+        {
+            Camera.main.gameObject.GetComponent<FollowTarget>().Target = this.transform;
+            marker = Camera.main.gameObject.GetComponent<ShootController>();
+        }
     }
 
     void FixedUpdate()
     {
         if (photonView.isMine)
         {
+          //  Debug.Log("mine");
             body.isKinematic = false;
 
             body.WakeUp(); // Танк не должен никогда засыпать, он всегда бдит
@@ -75,11 +84,13 @@ public class TankControl : Photon.MonoBehaviour
             RotateBarrel();
 
 
+
             if (PlayerControlled)
             {
 
                 Move(Input.GetAxis("Vertical"));
                 Turn(Input.GetAxis("Horizontal"));
+                LookAtPoint(marker.TargetPosition);
                 if (Input.GetKeyDown("r") && (!hasGrip))
                 {
                   //  Recover(); // Пока эту функцию использовать не будем, пока не решу, как ее реализовать получше
@@ -99,8 +110,10 @@ public class TankControl : Photon.MonoBehaviour
     {
         if (hasGrip)
         {
+           
             if (dir > 0)
             {
+
                 body.AddRelativeForce(-curPower * dir, 0, 0);
             }
             else
