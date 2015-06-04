@@ -6,33 +6,33 @@ using System.Collections;
 [RequireComponent(typeof(TankControl))]
 
 public class TankShoot : Photon.MonoBehaviour {
-   // public bool PlayerControlled = false;
 
     public GameObject Projectile;
     public Transform Muzzle;
     public Transform Head;
 
-    public bool shootingEnabled = true;
-    public AudioClip shotSnd;
+    public bool ShootingEnabled = true;
+    public AudioClip ShotSnd;
 
     private TankControl controls;
+    private HealthManager hpManager;
 
-    public bool overrideShotParameters = false;
-    public float damage = 10f;
-    public Color shotColor = Color.red;
-    public bool hasSplash = false;
-    public float splashRad = 0.5f;
-    public float splashDmg = 5f;
+    public bool OverrideShotParameters = false;
+    public float Damage = 10f;
+    public Color ShotColor = Color.red;
+    public bool HasSplash = false;
+    public float SplashRad = 0.5f;
+    public float SplashDmg = 5f;
     
 
     [Range(0.02f, 1.0f)]
-    public float shootDelay = 0.3f;
+    public float ShootDelay = 0.3f;
 
     [Range(1f, 30f)]
-    public float muzzleSpeed = 20f;
+    public float MuzzleSpeed = 20f;
 
     [Range(0f, 50f)]
-    public float recoil = 3f;
+    public float Recoil = 3f;
 
     float lastShootT = 0f;
     bool shooting = false;
@@ -43,6 +43,7 @@ public class TankShoot : Photon.MonoBehaviour {
     {
         tBody = GetComponent<Rigidbody>();
         controls = GetComponent<TankControl>();
+        hpManager = GetComponent<HealthManager>();
 	}
 	
 	
@@ -72,29 +73,35 @@ public class TankShoot : Photon.MonoBehaviour {
 	
     }
 
+    [RPC]
+    public void ShootEffects()
+    {
+        
+        GetComponent<AudioSource>().PlayOneShot(ShotSnd);
+        Muzzle.gameObject.SetActive(true);
+
+    }
+
    public void Shoot()
     {
-        if (shootingEnabled)
+        if (ShootingEnabled)
         {
             shooting = true;
-            Muzzle.gameObject.SetActive(true);
+            
 
-            if (Time.time > (lastShootT + shootDelay))
+            if (Time.time > (lastShootT + ShootDelay))
             {
+                //Создаем снаряд, обвязку к нему, настраиваем
+                GameObject proj = PhotonNetwork.Instantiate(Projectile.name, Muzzle.position, Head.rotation * Quaternion.Euler(0, 0, 90), 0);
 
-                GameObject proj = Instantiate(Projectile) as GameObject;
-                if (overrideShotParameters)
-                {
-                 //   proj.GetComponent<ShellExplosion>().SetSettings(damage, shotColor, hasSplash, splashRad, splashDmg);
-                }
-
-                GetComponent<AudioSource>().PlayOneShot(shotSnd);
-                proj.transform.position = Muzzle.position;
-                proj.transform.rotation = Head.rotation;
-                proj.transform.rotation *= Quaternion.Euler(0, 0, 90);
+                photonView.RPC("ShootEffects", PhotonTargets.All);
+                proj.GetComponent<ShellExplosion>().photonView.RPC("SetSettings", PhotonTargets.All, Damage, hpManager.Team, HasSplash, SplashRad, SplashDmg );
+                
+                //А сами тем временем даем пенделя снаряду
                 Rigidbody body = proj.GetComponent<Rigidbody>();
-                body.velocity = GetComponent<Rigidbody>().velocity + Muzzle.transform.TransformDirection(-Vector3.right) * muzzleSpeed + Muzzle.transform.TransformDirection(Vector3.up)*.3f;
-                tBody.AddForceAtPosition(Muzzle.transform.TransformDirection(Vector3.right) * recoil, Muzzle.transform.position);
+                body.velocity = GetComponent<Rigidbody>().velocity + Muzzle.transform.TransformDirection(-Vector3.right) * MuzzleSpeed + Muzzle.transform.TransformDirection(Vector3.up)*.3f;
+                tBody.AddForceAtPosition(Muzzle.transform.TransformDirection(Vector3.right) * Recoil, Muzzle.transform.position);
+               
                 lastShootT = Time.time;
             }
 

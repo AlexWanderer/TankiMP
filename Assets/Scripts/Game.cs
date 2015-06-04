@@ -17,6 +17,8 @@ public class Game : MonoBehaviour {
 
     public RectTransform TeamsWindow;
 
+    public RectTransform SpawnButton;
+
     public GameObject PlayerPrefab;
 
     private GameObject player;
@@ -133,12 +135,24 @@ public class Game : MonoBehaviour {
     {
         Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length - 1)];
         player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0) as GameObject;
+        player.GetComponent<HealthManager>().photonView.RPC("InitHPAndTeam", PhotonTargets.All, 100, 100, team);
         
+    }
+
+    public void SetTeamAndSpawn(int teamID)
+    {
+        SetPlayerTeam(teamID);
+        SpawnPlayer();
     }
 
     public void SetPlayerTeam(int teamID)
     {
         team = teamID;
+    }
+
+    public void DisconnectToLobby()
+    {
+        PhotonNetwork.LeaveRoom();
     }
 
     public void OnMasterClientSwitched(PhotonPlayer player)

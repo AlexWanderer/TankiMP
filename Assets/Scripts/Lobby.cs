@@ -167,5 +167,9 @@ public class Lobby : Photon.MonoBehaviour {
         connectedToPUN = true;
     }
 
+    public void LeaveGame()
+    {
+        Application.Quit();
+    }
 	
 }
