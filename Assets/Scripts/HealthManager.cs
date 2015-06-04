@@ -6,12 +6,15 @@ public class HealthManager : Photon.MonoBehaviour {
     public GameObject DeadPrefab;
     public int Team = -1;
 
+    private Game gm;
     float maxHealth;
     bool dead = false;
     private Material plyMat;
 
 	void Awake () 
     {
+        gm = GameObject.Find("WorldOrigin").GetComponent<Game>();
+
         maxHealth = Health;
 	}
 
@@ -27,10 +30,20 @@ public class HealthManager : Photon.MonoBehaviour {
         if (team == 0)
         {
             plyMat.color = Color.red;
+
         }
         else
         {
             plyMat.color = Color.blue;
+        }
+
+        foreach (Transform child in transform)
+        {
+            if (child.GetComponent<Renderer>())
+            {
+                child.GetComponent<Renderer>().material = plyMat;
+            }
+            
         }
 
         GetComponent<Renderer>().material = plyMat;
@@ -41,7 +54,7 @@ public class HealthManager : Photon.MonoBehaviour {
     {
         if (!dead)
         {
-            photonView.RPC("BroadcastDamage", PhotonTargets.All, amount);   
+            photonView.RPC("BroadcastDamage", PhotonTargets.AllBuffered, amount);   
         }
     }
 
@@ -52,8 +65,11 @@ public class HealthManager : Photon.MonoBehaviour {
 
         if (photonView.isMine)
         {
-            if (Health <= 0)
+            if ((Health <= 0)&&(!dead))
             {
+                dead = true;
+                gm.PlayerKilled();
+
                 photonView.RPC("Die",PhotonTargets.All);
             }
         }
@@ -74,9 +90,12 @@ public class HealthManager : Photon.MonoBehaviour {
     {
         dead = true;
         Health = 0;
-        GameObject ded = Instantiate(DeadPrefab, transform.position, transform.rotation) as GameObject; //Не синхронизируем, так как физики они не имеют и не влияют на игру.
-
-        Destroy(this.gameObject);
+        GameObject ded = Instantiate(DeadPrefab, this.transform.position, transform.rotation) as GameObject; //Не синхронизируем, так как физики они не имеют и не влияют на игру.
+        if (photonView.isMine)
+        {
+            PhotonNetwork.Destroy(this.photonView);
+        }
+       // Destroy(this.gameObject);
     }
 
 

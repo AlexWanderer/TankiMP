@@ -8,11 +8,24 @@ public class ShellExplosion : Photon.MonoBehaviour {
     public float SplashRadius = 0f;
     public float SplashDamage = 0f;
     public bool HasSplashDamage = false;
+    Rigidbody body;
 
 	void Awake () 
     {
-	
+        body = GetComponent<Rigidbody>();
+        if (!photonView.isMine)
+        {
+            body.isKinematic = true;
+        }
 	}
+
+    void FixedUpdate()
+    {
+        if (photonView.isMine)
+        {
+            body.AddForce(Vector3.up * body.mass * 7f);
+        }
+    }
 
     void OnCollisionEnter(Collision col) //Обрабатываем коллизии только на главном снаряде, остальные с ним просто синхронизируются
     {
@@ -43,7 +56,11 @@ public class ShellExplosion : Photon.MonoBehaviour {
         Explosion.GetComponent<Autodestruct>().Delay = 1.5f;
        // Explosion.transform.rotation = Quaternion.FromToRotation(Vector3.up, col.contacts[0].normal);
         Explosion.transform.parent = null;
-        Destroy(this.gameObject);
+        if (photonView.isMine)
+        {
+            PhotonNetwork.Destroy(this.photonView);
+        }
+        //Destroy(this.gameObject);
     }
 
     [RPC]

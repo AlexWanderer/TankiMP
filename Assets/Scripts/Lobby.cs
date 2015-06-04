@@ -76,6 +76,8 @@ public class Lobby : Photon.MonoBehaviour {
             PhotonNetwork.playerName = "Mingebag" + Random.Range(1, 255);
         }
 
+        PhotonNetwork.sendRate = 15;
+        PhotonNetwork.sendRateOnSerialize = 15;
         // if you wanted more debug out, turn this on:
         // PhotonNetwork.logLevel = NetworkLogLevel.Full;
     }

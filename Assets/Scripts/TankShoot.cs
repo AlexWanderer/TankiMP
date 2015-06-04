@@ -87,7 +87,8 @@ public class TankShoot : Photon.MonoBehaviour {
         if (ShootingEnabled)
         {
             shooting = true;
-            
+
+           // Debug.Log(PhotonNetwork.GetPing());
 
             if (Time.time > (lastShootT + ShootDelay))
             {
@@ -99,7 +100,8 @@ public class TankShoot : Photon.MonoBehaviour {
                 
                 //А сами тем временем даем пенделя снаряду
                 Rigidbody body = proj.GetComponent<Rigidbody>();
-                body.velocity = GetComponent<Rigidbody>().velocity + Muzzle.transform.TransformDirection(-Vector3.right) * MuzzleSpeed + Muzzle.transform.TransformDirection(Vector3.up)*.3f;
+               // body.velocity = GetComponent<Rigidbody>().velocity + Vector3.forward;
+                body.velocity = GetComponent<Rigidbody>().velocity + Muzzle.transform.TransformDirection(-Vector3.right) * MuzzleSpeed + Muzzle.transform.TransformDirection(Vector3.up)*0.1f;
                 tBody.AddForceAtPosition(Muzzle.transform.TransformDirection(Vector3.right) * Recoil, Muzzle.transform.position);
                
                 lastShootT = Time.time;
