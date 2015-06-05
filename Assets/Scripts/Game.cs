@@ -37,6 +37,9 @@ public class Game : MonoBehaviour {
 
     private PhotonView photonView;
 
+    public static float PlayerHP = 100;
+    public Text hpGUI;
+
     public void Awake()
     {
         LoadScreen.gameObject.SetActive(true); //Пока все не загрузилось, кажем загрузочный экран
@@ -115,6 +118,8 @@ public class Game : MonoBehaviour {
             SpawnWindow.gameObject.SetActive(false);
             TeamsWindow.gameObject.SetActive(false);
         }
+
+        hpGUI.text = Mathf.Floor(PlayerHP).ToString();
     }
 
 
@@ -138,7 +143,7 @@ public class Game : MonoBehaviour {
     {
         Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length)];
         player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0) as GameObject;
-        player.GetComponent<HealthManager>().photonView.RPC("InitHPAndTeam", PhotonTargets.AllBuffered, 100f, 100f, team);
+        player.GetComponent<HealthManager>().photonView.RPC("InitHPAndTeam", PhotonTargets.AllBuffered, 100f, 100f, team, PhotonNetwork.playerName);
         
     }
 

@@ -10,15 +10,23 @@ public class ShellExplosion : Photon.MonoBehaviour {
     public bool HasSplashDamage = false;
     Rigidbody body;
 
-    GameObject owner;
+    Material mat;
+
+    string owner;
 
 	void Awake () 
     {
+
+       // Debug.Log(Team);
+        
+
         body = GetComponent<Rigidbody>();
         if (!photonView.isMine)
         {
             body.isKinematic = true;
         }
+
+
 	}
 
     void FixedUpdate()
@@ -34,7 +42,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
         if (photonView.isMine)
         {
             //col.collider.transform.root.gameObject.SendMessage("DoDamage", Damage, SendMessageOptions.DontRequireReceiver);
-            col.collider.transform.root.gameObject.SendMessage("DoDamage", new DamageInfo(Damage,Team, PhotonNetwork.playerName, owner), SendMessageOptions.DontRequireReceiver);
+            col.collider.transform.root.gameObject.SendMessage("DoDamage", new DamageInfo(Damage,Team, PhotonNetwork.playerName), SendMessageOptions.DontRequireReceiver);
             photonView.RPC("Explode", PhotonTargets.All);
 
             if (HasSplashDamage)
@@ -42,7 +50,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
                 Collider[] cols = Physics.OverlapSphere(this.transform.position, SplashRadius);
                 foreach (Collider c in cols)
                 {
-                    c.SendMessageUpwards("DoDamage", SplashDamage, SendMessageOptions.DontRequireReceiver);
+                    c.SendMessageUpwards("DoDamage", new DamageInfo(SplashDamage, Team, PhotonNetwork.playerName), SendMessageOptions.DontRequireReceiver);
                 }
             }
 
@@ -53,9 +61,12 @@ public class ShellExplosion : Photon.MonoBehaviour {
     [RPC]
     void Explode()
     {
-        Explosion.SetActive(true);
-        Explosion.AddComponent<Autodestruct>();
-        Explosion.GetComponent<Autodestruct>().Delay = 1.5f;
+       // Explosion.SetActive(true);
+       // Explosion.AddComponent<Autodestruct>();
+       // Explosion.GetComponent<Autodestruct>().Delay = 1.5f;
+       GameObject expl = Instantiate(Explosion, this.transform.position, Quaternion.identity) as GameObject;
+       expl.GetComponent<ExplosionEffect>().Explode();
+
        // Explosion.transform.rotation = Quaternion.FromToRotation(Vector3.up, col.contacts[0].normal);
         Explosion.transform.parent = null;
         if (photonView.isMine)
@@ -66,7 +77,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
     }
 
     [RPC]
-	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, GameObject own)
+	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, string own)
     {
         owner = own;
 
@@ -85,6 +96,23 @@ public class ShellExplosion : Photon.MonoBehaviour {
         HasSplashDamage = hasSplashDmg;
         SplashRadius = splashRad;
         SplashDamage = splashDmg;
+
+
+        mat = Instantiate(GetComponent<Renderer>().material) as Material;
+        if (Team == 0)
+        {
+            mat.color = Color.red;
+            GetComponent<TrailRenderer>().material.color = Color.red;
+        }
+        else
+        {
+            mat.color = Color.blue;
+            GetComponent<TrailRenderer>().material.color = Color.blue;
+        }
+
+
+        GetComponent<Renderer>().material = mat;
+        
 
     }
 }

@@ -6,6 +6,8 @@ public class TankExplosion : MonoBehaviour {
     public bool timedDestruct = true;
     Autodestruct destructor;
 
+    public GameObject Explosion;
+
     public float explosiveForce = 100f;
 
     Rigidbody[] parts;
@@ -18,6 +20,9 @@ public class TankExplosion : MonoBehaviour {
             destructor.Delay = time;
             destructor.Fade = false;
         }
+
+        GameObject expl = Instantiate(Explosion, this.transform.position, Quaternion.identity) as GameObject;
+        expl.GetComponent<ExplosionEffect>().Explode();
 
         Camera.main.GetComponent<CamShake>().StartShake(0.3f);
 

@@ -11,7 +11,7 @@ public class DamageInfo
 
     public GameObject OwnerObj;
 
-    public DamageInfo(float dmg, int team, string owner, GameObject ownObj)
+    public DamageInfo(float dmg, int team, string owner)
     {
         Damage = dmg;
 
@@ -19,6 +19,6 @@ public class DamageInfo
 
         Owner = owner;
 
-        OwnerObj = ownObj;
+        //OwnerObj = ownObj;
     }
 }

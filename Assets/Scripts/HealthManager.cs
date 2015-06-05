@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class HealthManager : Photon.MonoBehaviour {
+    public string Name = "Mingebag";
     public float Health = 100f;
     public GameObject DeadPrefab;
     public int Team = -1;
@@ -18,15 +19,25 @@ public class HealthManager : Photon.MonoBehaviour {
         gm = GameObject.Find("WorldOrigin").GetComponent<Game>();
 
         maxHealth = Health;
+
+        if (photonView.isMine)
+        {
+            Game.PlayerHP = Health;
+        }
 	}
 
     [RPC]
-    public void InitHPAndTeam(float hp, float maxHP, int team)
+    public void InitHPAndTeam(float hp, float maxHP, int team, string n)
     {
         Team = team;
         Health = hp;
         maxHealth = maxHP;
+        Name = n;
 
+        if (photonView.isMine)
+        {
+            Game.PlayerHP = Health;
+        }
 
         plyMat = Instantiate(GetComponent<Renderer>().material) as Material;
         if (team == 0)
@@ -54,25 +65,37 @@ public class HealthManager : Photon.MonoBehaviour {
 
     public void DoDamage(DamageInfo dmgInfo)
     {
+
+
         if (!dead)
         {
-            photonView.RPC("BroadcastDamage", PhotonTargets.AllBuffered, dmgInfo);   
+            photonView.RPC("BroadcastDamage", PhotonTargets.AllBuffered, dmgInfo.Damage, dmgInfo.Owner);   
         }
     }
 
     [RPC]
-    void BroadcastDamage(DamageInfo dmgInfo)
+    void BroadcastDamage(float damage, string owner)
     {
-        Health -= dmgInfo.Damage;
+        Health -= damage;
+        if (Health < 0)
+        {
+            Health = 0;
+        }
         
 
         if (photonView.isMine)
         {
+            if (photonView.isMine)
+            {
+                Game.PlayerHP = Health;
+            }
+
+
             if ((Health <= 0)&&(!dead))
             {
                 dead = true;
                 gm.PlayerKilled();
-                killedBy = dmgInfo.Owner;
+                killedBy = owner;
                 photonView.RPC("Die",PhotonTargets.All, killedBy);
             }
         }
@@ -83,6 +106,11 @@ public class HealthManager : Photon.MonoBehaviour {
     {
         if (!dead)
         {
+            if (photonView.isMine)
+            {
+                Game.PlayerHP = Health;
+            }
+
             Health += amount;
             Health = Mathf.Clamp(Health, 0, maxHealth);
         }
