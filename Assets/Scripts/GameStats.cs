@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class GameStats : MonoBehaviour {
+public class GameStats : Photon.MonoBehaviour {
+    public List<string> Players = new List<string>();
+    public float MaxRoundTime = 60f;
+    public float RoundTime = 0f;
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    void Update()
+    {
+        RoundTime += Time.deltaTime;
+    }
+
 }

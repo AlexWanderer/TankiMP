@@ -96,7 +96,7 @@ public class TankShoot : Photon.MonoBehaviour {
                 GameObject proj = PhotonNetwork.Instantiate(Projectile.name, Muzzle.position, Head.rotation * Quaternion.Euler(0, 0, 90), 0);
 
                 photonView.RPC("ShootEffects", PhotonTargets.All);
-                proj.GetComponent<ShellExplosion>().photonView.RPC("SetSettings", PhotonTargets.All, Damage, hpManager.Team, HasSplash, SplashRad, SplashDmg );
+                proj.GetComponent<ShellExplosion>().photonView.RPC("SetSettings", PhotonTargets.All, Damage, hpManager.Team, HasSplash, SplashRad, SplashDmg, controls.gameObject );
                 
                 //А сами тем временем даем пенделя снаряду
                 Rigidbody body = proj.GetComponent<Rigidbody>();

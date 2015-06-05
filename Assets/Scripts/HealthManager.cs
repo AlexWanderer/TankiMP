@@ -11,6 +11,8 @@ public class HealthManager : Photon.MonoBehaviour {
     bool dead = false;
     private Material plyMat;
 
+    private string killedBy;
+
 	void Awake () 
     {
         gm = GameObject.Find("WorldOrigin").GetComponent<Game>();
@@ -50,18 +52,19 @@ public class HealthManager : Photon.MonoBehaviour {
 
     }
 
-    public void DoDamage(float amount)
+    public void DoDamage(DamageInfo dmgInfo)
     {
         if (!dead)
         {
-            photonView.RPC("BroadcastDamage", PhotonTargets.AllBuffered, amount);   
+            photonView.RPC("BroadcastDamage", PhotonTargets.AllBuffered, dmgInfo);   
         }
     }
 
     [RPC]
-    void BroadcastDamage(float num)
+    void BroadcastDamage(DamageInfo dmgInfo)
     {
-        Health -= num;
+        Health -= dmgInfo.Damage;
+        
 
         if (photonView.isMine)
         {
@@ -69,8 +72,8 @@ public class HealthManager : Photon.MonoBehaviour {
             {
                 dead = true;
                 gm.PlayerKilled();
-
-                photonView.RPC("Die",PhotonTargets.All);
+                killedBy = dmgInfo.Owner;
+                photonView.RPC("Die",PhotonTargets.All, killedBy);
             }
         }
     }
@@ -86,8 +89,10 @@ public class HealthManager : Photon.MonoBehaviour {
     }
 
     [RPC]
-    public void Die()
+    public void Die(string whoKilled)
     {
+        Debug.Log(whoKilled + "became a frag");
+        killedBy = whoKilled;
         dead = true;
         Health = 0;
         GameObject ded = Instantiate(DeadPrefab, this.transform.position, transform.rotation) as GameObject; //Не синхронизируем, так как физики они не имеют и не влияют на игру.

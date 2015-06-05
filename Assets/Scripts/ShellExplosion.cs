@@ -10,6 +10,8 @@ public class ShellExplosion : Photon.MonoBehaviour {
     public bool HasSplashDamage = false;
     Rigidbody body;
 
+    GameObject owner;
+
 	void Awake () 
     {
         body = GetComponent<Rigidbody>();
@@ -31,8 +33,8 @@ public class ShellExplosion : Photon.MonoBehaviour {
     {
         if (photonView.isMine)
         {
-            col.collider.transform.root.gameObject.SendMessage("DoDamage", Damage, SendMessageOptions.DontRequireReceiver);
-
+            //col.collider.transform.root.gameObject.SendMessage("DoDamage", Damage, SendMessageOptions.DontRequireReceiver);
+            col.collider.transform.root.gameObject.SendMessage("DoDamage", new DamageInfo(Damage,Team, PhotonNetwork.playerName, owner), SendMessageOptions.DontRequireReceiver);
             photonView.RPC("Explode", PhotonTargets.All);
 
             if (HasSplashDamage)
@@ -64,8 +66,10 @@ public class ShellExplosion : Photon.MonoBehaviour {
     }
 
     [RPC]
-	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg)
+	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, GameObject own)
     {
+        owner = own;
+
         Damage = dmg;
         if (team == 0) //RED
         {

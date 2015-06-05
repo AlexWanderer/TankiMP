@@ -25,6 +25,8 @@ public class Game : MonoBehaviour {
 
     private bool playerSpawned = false;
 
+    public bool PlayerDead = true;
+
     private int team = -1;
 
     private GameObject levelSettings;
@@ -127,6 +129,7 @@ public class Game : MonoBehaviour {
             CreatePlayer();
 
             playerSpawned = true;
+            PlayerDead = false;
 
         }
     }
@@ -157,7 +160,15 @@ public class Game : MonoBehaviour {
 
     public void PlayerKilled()
     {
+        Debug.Log("You are Dead");
+        StartCoroutine(DeathDelay(5f));
+    }
+
+    IEnumerator DeathDelay(float time)
+    {
+        yield return new WaitForSeconds(time);
         playerSpawned = false;
+
     }
 
     public void OnMasterClientSwitched(PhotonPlayer player)
