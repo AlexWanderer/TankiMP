@@ -40,11 +40,15 @@ public class Game : MonoBehaviour {
     public static float PlayerHP = 100;
     public Text hpGUI;
 
+   // bool 
+
     public void Awake()
     {
         LoadScreen.gameObject.SetActive(true); //Пока все не загрузилось, кажем загрузочный экран
 
         photonView = GetComponent<PhotonView>();
+
+        
 
         if (!PhotonNetwork.connected)
         {
@@ -155,6 +159,15 @@ public class Game : MonoBehaviour {
 
     public void SetPlayerTeam(int teamID)
     {
+        if (teamID == 1)
+        {
+            PhotonNetwork.player.SetTeam(PunTeams.Team.blue);
+        }
+        else if (teamID == 0)
+        {
+            PhotonNetwork.player.SetTeam(PunTeams.Team.red);
+        }
+        
         team = teamID;
     }
 

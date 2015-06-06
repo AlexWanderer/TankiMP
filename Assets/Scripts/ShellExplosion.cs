@@ -12,7 +12,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
 
     Material mat;
 
-    string owner;
+    int owner;
 
 	void Awake () 
     {
@@ -42,7 +42,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
         if (photonView.isMine)
         {
             //col.collider.transform.root.gameObject.SendMessage("DoDamage", Damage, SendMessageOptions.DontRequireReceiver);
-            col.collider.transform.root.gameObject.SendMessage("DoDamage", new DamageInfo(Damage,Team, PhotonNetwork.playerName), SendMessageOptions.DontRequireReceiver);
+            col.collider.transform.root.gameObject.SendMessage("DoDamage", new DamageInfo(Damage, Team, PhotonNetwork.player.ID), SendMessageOptions.DontRequireReceiver);
             photonView.RPC("Explode", PhotonTargets.All);
 
             if (HasSplashDamage)
@@ -50,7 +50,7 @@ public class ShellExplosion : Photon.MonoBehaviour {
                 Collider[] cols = Physics.OverlapSphere(this.transform.position, SplashRadius);
                 foreach (Collider c in cols)
                 {
-                    c.SendMessageUpwards("DoDamage", new DamageInfo(SplashDamage, Team, PhotonNetwork.playerName), SendMessageOptions.DontRequireReceiver);
+                    c.SendMessageUpwards("DoDamage", new DamageInfo(SplashDamage, Team, PhotonNetwork.player.ID), SendMessageOptions.DontRequireReceiver);
                 }
             }
 
@@ -71,13 +71,14 @@ public class ShellExplosion : Photon.MonoBehaviour {
         Explosion.transform.parent = null;
         if (photonView.isMine)
         {
+            
             PhotonNetwork.Destroy(this.photonView);
         }
         //Destroy(this.gameObject);
     }
 
     [RPC]
-	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, string own)
+	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, int own)
     {
         owner = own;
 

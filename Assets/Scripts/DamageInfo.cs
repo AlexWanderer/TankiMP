@@ -7,11 +7,11 @@ public class DamageInfo
 
     public int Team = -1;
 
-    public string Owner = "null";
+    public int Owner = 0;
 
     public GameObject OwnerObj;
 
-    public DamageInfo(float dmg, int team, string owner)
+    public DamageInfo(float dmg, int team, int owner)
     {
         Damage = dmg;
 

@@ -51,7 +51,7 @@ public class Lobby : Photon.MonoBehaviour {
             if (value != "")
             {
                 PhotonNetwork.playerName = value;
-                PlayerPrefs.SetString("playerName", PhotonNetwork.playerName);
+               
             }
         }
     }
@@ -75,6 +75,18 @@ public class Lobby : Photon.MonoBehaviour {
         {
             PhotonNetwork.playerName = "Mingebag" + Random.Range(1, 255);
         }
+
+
+        //Задаем дополнительные свойства игрокам. Они автоматически синкятся, что удобно.
+        int deaths = 0;
+        ExitGames.Client.Photon.Hashtable PlayerProperties = new ExitGames.Client.Photon.Hashtable();// { { "Deaths", deaths } };
+        PlayerProperties["Deaths"] = deaths;
+        PhotonNetwork.player.SetCustomProperties(PlayerProperties);
+        PlayerPrefs.SetString("playerName", PhotonNetwork.playerName);
+        object ded;
+        string key = "Deaths";
+        PhotonNetwork.player.customProperties.TryGetValue((object)key, out ded);
+       // Debug.Log(ded.ToString() + "Test");
 
         PhotonNetwork.sendRate = 15;
         PhotonNetwork.sendRateOnSerialize = 15;
@@ -126,7 +138,7 @@ public class Lobby : Photon.MonoBehaviour {
     {
         //Placeholder:
         SetLevelSettings("TestLevel", true, false, 240f);
-        if (true) //Добавить проверку на присоединение к мастер-серверу
+        if (connectedToPUN) //Добавить проверку на присоединение к мастер-серверу
         {
             PhotonNetwork.CreateRoom(this.roomName, new RoomOptions() { maxPlayers = 10 }, null);
         }
@@ -164,9 +176,15 @@ public class Lobby : Photon.MonoBehaviour {
         Debug.Log("OnFailedToConnectToPhoton. StatusCode: " + parameters + " ServerAddress: " + PhotonNetwork.networkingPeer.ServerAddress);
     }
 
-    public void OnConnectedToLobby()
+    public void OnJoinedLobby()
     {
         connectedToPUN = true;
+        Debug.Log("Connected To Lobby");
+    }
+
+    public void OnConnectedToMaster()
+    {
+        Debug.Log("Connected To Master");
     }
 
     public void LeaveGame()
