@@ -85,7 +85,7 @@ public class TankControl : Photon.MonoBehaviour
 
 
 
-            if (PlayerControlled)
+            if ((PlayerControlled)&&(!Game.lockControls))
             {
 
                 Move(Input.GetAxis("Vertical"));

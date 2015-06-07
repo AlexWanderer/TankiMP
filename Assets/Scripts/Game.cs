@@ -5,11 +5,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
 
 
-public class Game : MonoBehaviour {
+public class Game : Photon.MonoBehaviour {
 
     public Image LoadScreen;
 
@@ -27,7 +28,7 @@ public class Game : MonoBehaviour {
 
     public bool PlayerDead = true;
 
-    private int team = -1;
+    private PunTeams.Team team = PunTeams.Team.none;
 
     private GameObject levelSettings;
 
@@ -39,6 +40,8 @@ public class Game : MonoBehaviour {
 
     public static float PlayerHP = 100;
     public Text hpGUI;
+
+    public static bool lockControls = false; // свойство для блокировки управления персонажем
 
    // bool 
 
@@ -68,7 +71,7 @@ public class Game : MonoBehaviour {
             LevelSettings s = levelSettings.GetComponent<LevelSettings>();
             levelConfig = s;
 
-            photonView.RPC("SyncLevelSettings", PhotonTargets.OthersBuffered, s.LevelName, s.HasTeams, s.Bots, s.RoundTime);
+           // photonView.RPC("SyncLevelSettings", PhotonTargets.OthersBuffered, s.LevelName, s.HasTeams, s.Bots, s.RoundTime);
             s.LoadLevel();
             levelSynced = true;
         }
@@ -129,9 +132,9 @@ public class Game : MonoBehaviour {
 
     public void SpawnPlayer()  //Внешняя функция спавна из соответствующего меню. Выполняет проверку на принадлежность к команде
     {
-        if (levelConfig.HasTeams && (team == -1))
+        if (levelConfig.HasTeams && (team == PunTeams.Team.none))
         {
-            return; // Если команда не выбрана (-1), а уровень командный, то спавниться не будем
+            return; // Если команда не выбрана, а уровень командный, то спавниться не будем
         }
         else
         {
@@ -145,8 +148,41 @@ public class Game : MonoBehaviour {
 
     void CreatePlayer()
     {
-        Transform spawnPoint = levelConfig.SpawnPoints[Random.Range(0, levelConfig.SpawnPoints.Length)];
-        player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0) as GameObject;
+        
+        bool found = false;
+        List<SpawnPoint> points = new List<SpawnPoint>();
+
+        foreach (SpawnPoint p in levelConfig.SpawnPoints)
+        {
+            if (p.Type == SpawnPoint.PointType.Player)
+            {
+                if (levelConfig.HasTeams)
+                {
+                    if (p.Team == PhotonNetwork.player.GetTeam())
+                    {
+                        if (p.CheckAvailability())
+                        {
+                            points.Add(p);
+                            found = true;
+                        }
+                       
+                    }
+                       
+                }
+            }
+            
+        }
+
+        if (!found)
+        {
+            Debug.Log("Error: No such Spawn points");
+            return; //Подходящих точек нет, заспанится не вышло.
+        }
+
+        SpawnPoint choosenPoint = points[Random.Range(0,points.Count)];
+
+        player = PhotonNetwork.Instantiate(this.PlayerPrefab.name, choosenPoint.transform.position, choosenPoint.transform.rotation, 0) as GameObject;
+
         player.GetComponent<HealthManager>().photonView.RPC("InitHPAndTeam", PhotonTargets.AllBuffered, 100f, 100f, team, PhotonNetwork.playerName);
         
     }
@@ -162,13 +198,15 @@ public class Game : MonoBehaviour {
         if (teamID == 1)
         {
             PhotonNetwork.player.SetTeam(PunTeams.Team.blue);
+            team = PunTeams.Team.blue;
         }
         else if (teamID == 0)
         {
             PhotonNetwork.player.SetTeam(PunTeams.Team.red);
+            team = PunTeams.Team.red;
         }
         
-        team = teamID;
+       
     }
 
     public void DisconnectToLobby()
@@ -213,6 +251,17 @@ public class Game : MonoBehaviour {
         }
     }
 
+    public void LeaveGame()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public void Exit()
+    {
+        PhotonNetwork.Disconnect();
+        Application.Quit();
+    }
+
     public void OnLeftRoom()
     {
         Debug.Log("OnLeftRoom (local)");
@@ -240,6 +289,14 @@ public class Game : MonoBehaviour {
     public void OnPhotonPlayerConnected(PhotonPlayer player)
     {
         Debug.Log("OnPhotonPlayerConnected: " + player);
+
+        if (PhotonNetwork.isMasterClient)
+        {
+            LevelSettings s = levelSettings.GetComponent<LevelSettings>();
+            levelConfig = s;
+
+            photonView.RPC("SyncLevelSettings", player, s.LevelName, s.HasTeams, s.Bots, s.RoundTime);
+        }
     }
 
     public void OnPhotonPlayerDisconnected(PhotonPlayer player)

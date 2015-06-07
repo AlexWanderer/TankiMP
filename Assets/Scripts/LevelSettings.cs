@@ -12,7 +12,7 @@ public class LevelSettings : MonoBehaviour
 
     public GameObject LevelBasePrefab;
 
-    public Transform[] SpawnPoints;
+    public SpawnPoint[] SpawnPoints;
 
     public bool HasTeams = false;
 
@@ -31,7 +31,7 @@ public class LevelSettings : MonoBehaviour
         LevelBasePrefab = Instantiate(Resources.Load(LevelName), Vector3.zero, Quaternion.identity) as GameObject;
 
         GameObject spawnRoot = GameObject.Find("SpawnRoot");
-        SpawnPoints = spawnRoot.GetComponentsInChildren<Transform>();
+        SpawnPoints = spawnRoot.GetComponentsInChildren<SpawnPoint>();
 
     }
 

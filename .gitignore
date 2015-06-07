@@ -7,6 +7,18 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+# =============== #
+# Unity generated #
+# =============== #
+Temp/
+Obj/
+UnityGenerated/
+Library/
+.DS_Store
+/Library/FailedAssetImports.txt
+/Library/cache/
+/Library/previews/
+/Library/ScriptAssemblies
 
 # Windows Installer files
 *.cab
@@ -42,8 +54,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 Temp
-Library
-Library/assetDatabase3
-Library/ShaderCache
-Library/metadata
+
 

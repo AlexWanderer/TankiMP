@@ -2,14 +2,15 @@
 using System.Collections;
 
 public class GripDetector : MonoBehaviour {
-    public Collider rightTrack;
-    public Collider leftTrack;
+    public bool DebugDraw = false;
+
+    public Collider RightTrack;
+    public Collider LeftTrack;
     GameObject colLeft;
     GameObject colRight;
 
 
-    //public int colsNum = 0;
-    public int validCols = 0;
+    public int ValidCols = 0;
 
     bool newCycle = false;
     bool hasCols = false;
@@ -17,7 +18,7 @@ public class GripDetector : MonoBehaviour {
 
     public bool HasContact()
     {
-        if ((validCols > 1)&&(Vector3.Angle(Vector3.up,transform.TransformDirection(Vector3.up)) < 50))
+        if ((ValidCols > 1)&&(Vector3.Angle(Vector3.up,transform.TransformDirection(Vector3.up)) < 50))
         {
             return true;
         }
@@ -27,8 +28,8 @@ public class GripDetector : MonoBehaviour {
     void Start()
     {
         Collider[] cols = GetComponents<CapsuleCollider>();
-        rightTrack = cols[0];
-        leftTrack = cols[1];
+        RightTrack = cols[0];
+        LeftTrack = cols[1];
     }
 
     void FixedUpdate()
@@ -41,66 +42,50 @@ public class GripDetector : MonoBehaviour {
         }
         else
         {
-            validCols = 0;
+            ValidCols = 0;
         }
         newCycle = true;
     }
 
 
-
-
-    void OnCollisionEnter(Collision col)
-    {
-        if (col.contacts[0].thisCollider == leftTrack)
-        {
-           // colLeft = col.gameObject;
-
-        }
-    }
-
-    void OnCollisionExit(Collision col)
-    {
-        if (col.gameObject == colLeft)
-        {
-           // Debug.Log("left col missed");
-        }
-        //Debug.Log(col.contacts[0].thisCollider.gameObject.name);
-        //col.
-    }
-
     void OnCollisionStay(Collision col)
     {
-        Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.up), Color.blue);
+        if (DebugDraw)
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.up), Color.blue);
+        }
+        
         int i = 0;
        // validCols = 0;
         Color clr = Color.white;
         if (newCycle)
         {
-            validCols = 0;
+            ValidCols = 0;
             newCycle = false;
         }    
             foreach (ContactPoint p in col.contacts)
             {
-               if((p.thisCollider == rightTrack)||(p.thisCollider == leftTrack))
+               if((p.thisCollider == RightTrack)||(p.thisCollider == LeftTrack))
                {
                    hasCols = true;
                    if (Mathf.Abs(Vector3.Angle(transform.TransformDirection(Vector3.up), col.contacts[i].normal)) < 50f)
                    {
                        clr = Color.green;
-                       validCols++;
+                       ValidCols++;
                    }
                    else
                    {
                        clr = Color.red;
                    }
-                   Debug.DrawRay(col.contacts[i].point, col.contacts[i].normal, clr);
+                   if (DebugDraw)
+                   {
+                       Debug.DrawRay(col.contacts[i].point, col.contacts[i].normal, clr);
+                   }
                    
                }
                i++;
                 
             }
-          //  Debug.Log(validCols);
-        
-        
+
     }
 }

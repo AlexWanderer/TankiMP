@@ -5,7 +5,7 @@ public class HealthManager : Photon.MonoBehaviour {
     public string Name = "Mingebag";
     public float Health = 100f;
     public GameObject DeadPrefab;
-    public int Team = -1;
+    public PunTeams.Team Team = PunTeams.Team.none;
 
     private Game gm;
     float maxHealth;
@@ -27,7 +27,7 @@ public class HealthManager : Photon.MonoBehaviour {
 	}
 
     [RPC]
-    public void InitHPAndTeam(float hp, float maxHP, int team, string n)
+    public void InitHPAndTeam(float hp, float maxHP, PunTeams.Team team, string n)
     {
         Team = team;
         Health = hp;
@@ -40,12 +40,12 @@ public class HealthManager : Photon.MonoBehaviour {
         }
 
         plyMat = Instantiate(GetComponent<Renderer>().material) as Material;
-        if (team == 0)
+        if (team == PunTeams.Team.red)
         {
             plyMat.color = Color.red;
 
         }
-        else
+        else if (team == PunTeams.Team.blue)
         {
             plyMat.color = Color.blue;
         }
@@ -127,6 +127,11 @@ public class HealthManager : Photon.MonoBehaviour {
         if (photonView.isMine)
         {
             PhotonNetwork.player.Get(whoKilled).AddScore(1);
+
+            ExitGames.Client.Photon.Hashtable PlayerProperties = new ExitGames.Client.Photon.Hashtable();
+            PlayerProperties["Deaths"] = (int)PhotonNetwork.player.customProperties["Deaths"] + 1;
+            PhotonNetwork.player.SetCustomProperties(PlayerProperties);
+
             PhotonNetwork.Destroy(this.photonView);
         }
        // Destroy(this.gameObject);

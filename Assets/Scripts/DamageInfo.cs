@@ -5,13 +5,13 @@ public class DamageInfo
 {
     public float Damage = 0f;
 
-    public int Team = -1;
+    public PunTeams.Team Team = PunTeams.Team.none;
 
     public int Owner = 0;
 
     public GameObject OwnerObj;
 
-    public DamageInfo(float dmg, int team, int owner)
+    public DamageInfo(float dmg, PunTeams.Team team, int owner)
     {
         Damage = dmg;
 

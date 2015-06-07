@@ -4,7 +4,7 @@ using System.Collections;
 public class ShellExplosion : Photon.MonoBehaviour {
     public GameObject Explosion;
     public float Damage = 10f;
-    public int Team = 0;
+    public PunTeams.Team Team = PunTeams.Team.none;
     public float SplashRadius = 0f;
     public float SplashDamage = 0f;
     public bool HasSplashDamage = false;
@@ -62,8 +62,6 @@ public class ShellExplosion : Photon.MonoBehaviour {
     void Explode()
     {
        // Explosion.SetActive(true);
-       // Explosion.AddComponent<Autodestruct>();
-       // Explosion.GetComponent<Autodestruct>().Delay = 1.5f;
        GameObject expl = Instantiate(Explosion, this.transform.position, Quaternion.identity) as GameObject;
        expl.GetComponent<ExplosionEffect>().Explode();
 
@@ -78,17 +76,17 @@ public class ShellExplosion : Photon.MonoBehaviour {
     }
 
     [RPC]
-	public void SetSettings(float dmg, int team, bool hasSplashDmg, float splashRad, float splashDmg, int own)
+	public void SetSettings(float dmg, PunTeams.Team team, bool hasSplashDmg, float splashRad, float splashDmg, int own)
     {
         owner = own;
 
         Damage = dmg;
-        if (team == 0) //RED
+        if (team == PunTeams.Team.red) //RED
         {
             GetComponent<Renderer>().material.color = Color.red;
         }
 
-        if (team == 1) //BLU
+        if (team == PunTeams.Team.blue) //BLU
         {
             GetComponent<Renderer>().material.color = Color.blue;
         }
@@ -100,12 +98,12 @@ public class ShellExplosion : Photon.MonoBehaviour {
 
 
         mat = Instantiate(GetComponent<Renderer>().material) as Material;
-        if (Team == 0)
+        if (Team == PunTeams.Team.red)
         {
             mat.color = Color.red;
             GetComponent<TrailRenderer>().material.color = Color.red;
         }
-        else
+        else if (Team == PunTeams.Team.blue)
         {
             mat.color = Color.blue;
             GetComponent<TrailRenderer>().material.color = Color.blue;

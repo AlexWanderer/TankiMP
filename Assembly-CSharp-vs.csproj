@@ -123,6 +123,9 @@
      <Compile Include="Assets\Scripts\PlayerStats.cs" />
      <Compile Include="Assets\Scripts\ShellExplosion.cs" />
      <Compile Include="Assets\Scripts\ShootController.cs" />
+     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
+     <Compile Include="Assets\Scripts\SpeedBonus.cs" />
+     <Compile Include="Assets\Scripts\SpeedBonusEffect.cs" />
      <Compile Include="Assets\Scripts\TankControl.cs" />
      <Compile Include="Assets\Scripts\TankExplosion.cs" />
      <Compile Include="Assets\Scripts\TankMPSync.cs" />

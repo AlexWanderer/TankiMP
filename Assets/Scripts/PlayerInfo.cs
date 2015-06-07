@@ -22,12 +22,12 @@ public class PlayerInfo : Photon.MonoBehaviour {
 
         PlayerName.text = hp.Name;
 
-        if (hp.Team == 0)
+        if (Player.GetComponent<PhotonView>().owner.GetTeam() == PunTeams.Team.red)
         {
             PlayerName.color = Color.red;
             PlayerHp.color = Color.red;
         }
-        else
+        else if (Player.GetComponent<PhotonView>().owner.GetTeam() == PunTeams.Team.blue)
         {
             PlayerName.color = Color.blue;
             PlayerHp.color = Color.blue;
@@ -40,12 +40,12 @@ public class PlayerInfo : Photon.MonoBehaviour {
 	void Update () 
     {
 
-        if (hp.Team == 0)
+        if (Player.GetComponent<PhotonView>().owner.GetTeam() == PunTeams.Team.red)
         {
             PlayerName.color = Color.red;
             PlayerHp.color = Color.red;
         }
-        else
+        else if (Player.GetComponent<PhotonView>().owner.GetTeam() == PunTeams.Team.blue)
         {
             PlayerName.color = Color.blue;
             PlayerHp.color = Color.blue;

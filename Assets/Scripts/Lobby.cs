@@ -51,7 +51,7 @@ public class Lobby : Photon.MonoBehaviour {
             if (value != "")
             {
                 PhotonNetwork.playerName = value;
-               
+                PlayerPrefs.SetString("playerName", PhotonNetwork.playerName);
             }
         }
     }
@@ -82,7 +82,7 @@ public class Lobby : Photon.MonoBehaviour {
         ExitGames.Client.Photon.Hashtable PlayerProperties = new ExitGames.Client.Photon.Hashtable();// { { "Deaths", deaths } };
         PlayerProperties["Deaths"] = deaths;
         PhotonNetwork.player.SetCustomProperties(PlayerProperties);
-        PlayerPrefs.SetString("playerName", PhotonNetwork.playerName);
+        
         object ded;
         string key = "Deaths";
         PhotonNetwork.player.customProperties.TryGetValue((object)key, out ded);
@@ -140,6 +140,8 @@ public class Lobby : Photon.MonoBehaviour {
         SetLevelSettings("TestLevel", true, false, 240f);
         if (connectedToPUN) //Добавить проверку на присоединение к мастер-серверу
         {
+            //RoomOptions opts = new RoomOptions();
+            //opts.customRoomProperties =
             PhotonNetwork.CreateRoom(this.roomName, new RoomOptions() { maxPlayers = 10 }, null);
         }
         

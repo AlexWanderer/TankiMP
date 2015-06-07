@@ -1,7 +1,8 @@
+/// <summary>
+/// Отвечает за перемещения игровой камеры
+/// </summary>
 using System;
 using UnityEngine;
-
-
 
 
     public class FollowTarget : MonoBehaviour
@@ -47,58 +48,60 @@ using UnityEngine;
             if (Target != null)
             {
 
-                if (Input.GetAxis("Mouse ScrollWheel") != 0)
+                if (!Game.lockControls)
                 {
-                    raw += Input.GetAxis("Mouse ScrollWheel");
-                    raw = Mathf.Clamp(raw, -0.5f, 0.7f);
-                    yOffset = MaxHeightOffset * (-raw / 0.7f); 
-
-                }
-
-
-
-                if (Input.mousePosition.x > horBorderRight)
-                {
-                    delta = Input.mousePosition.x - horBorderRight;
-                    delta = Mathf.Clamp(delta, 0, horBorderLeft);
-                    horSpd = MoveSpeed * (delta / horBorderLeft);
-                   // Debug.Log(horSpd);
-
-                }
-                else if (Input.mousePosition.x < horBorderLeft)
-                {
-                    delta = Input.mousePosition.x - horBorderLeft;
-                    delta = Mathf.Clamp(delta, -horBorderLeft, 0);
-                    horSpd = MoveSpeed * (delta / horBorderLeft);
-                }
-                else if (Autocenter == true)
-                {
-                    if (additionalOffset.x > 0.2f)
+                    if (Input.GetAxis("Mouse ScrollWheel") != 0)
                     {
-                        additionalOffset.x -= MoveSpeed * 0.5f * Time.deltaTime;
+                        raw += Input.GetAxis("Mouse ScrollWheel");
+                        raw = Mathf.Clamp(raw, -0.5f, 0.7f);
+                        yOffset = MaxHeightOffset * (-raw / 0.7f);
+
                     }
-                    else if (additionalOffset.x < -0.2f)
+
+                    if (Input.mousePosition.x > horBorderRight)
                     {
-                        additionalOffset.x += MoveSpeed * 0.5f * Time.deltaTime;
+                        delta = Input.mousePosition.x - horBorderRight;
+                        delta = Mathf.Clamp(delta, 0, horBorderLeft);
+                        horSpd = MoveSpeed * (delta / horBorderLeft);
+                        // Debug.Log(horSpd);
+
                     }
+                    else if (Input.mousePosition.x < horBorderLeft)
+                    {
+                        delta = Input.mousePosition.x - horBorderLeft;
+                        delta = Mathf.Clamp(delta, -horBorderLeft, 0);
+                        horSpd = MoveSpeed * (delta / horBorderLeft);
+                    }
+                    else if (Autocenter == true)
+                    {
+                        if (additionalOffset.x > 0.2f)
+                        {
+                            additionalOffset.x -= MoveSpeed * 0.5f * Time.deltaTime;
+                        }
+                        else if (additionalOffset.x < -0.2f)
+                        {
+                            additionalOffset.x += MoveSpeed * 0.5f * Time.deltaTime;
+                        }
+                    }
+
+
+                    if (Input.mousePosition.y > vertBorderTop)
+                    {
+                        delta = Input.mousePosition.y - vertBorderTop;
+                        delta = Mathf.Clamp(delta, 0, vertBorderBottom);
+                        vertSpd = MoveSpeed * (delta / vertBorderBottom);
+                    }
+                    else if (Input.mousePosition.y < vertBorderBottom)
+                    {
+                        delta = Input.mousePosition.y - vertBorderBottom;
+                        delta = Mathf.Clamp(delta, -vertBorderBottom, 0);
+                        vertSpd = MoveSpeed * (delta / vertBorderBottom);
+                    }
+
+
                 }
 
-
-                if (Input.mousePosition.y > vertBorderTop)
-                {
-                    delta = Input.mousePosition.y - vertBorderTop;
-                    delta = Mathf.Clamp(delta, 0, vertBorderBottom);
-                    vertSpd = MoveSpeed * (delta / vertBorderBottom);
-                }
-                else if (Input.mousePosition.y < vertBorderBottom)
-                {
-                    delta = Input.mousePosition.y - vertBorderBottom;
-                    delta = Mathf.Clamp(delta, -vertBorderBottom, 0);
-                    vertSpd = MoveSpeed * (delta / vertBorderBottom);
-                }
-
-
-
+ 
                 additionalOffset.x += horSpd * Time.deltaTime;
                 additionalOffset.x = Mathf.Clamp(additionalOffset.x, -MaxHorizontalOffset, MaxHorizontalOffset);
 
