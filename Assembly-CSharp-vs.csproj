@@ -108,6 +108,8 @@
      <Compile Include="Assets\Scripts\Autodestruct.cs" />
      <Compile Include="Assets\Scripts\CamShake.cs" />
      <Compile Include="Assets\Scripts\CameraMovement.cs" />
+     <Compile Include="Assets\Scripts\Chat.cs" />
+     <Compile Include="Assets\Scripts\ChatMessage.cs" />
      <Compile Include="Assets\Scripts\DamageInfo.cs" />
      <Compile Include="Assets\Scripts\ExplosionEffect.cs" />
      <Compile Include="Assets\Scripts\FollowTarget.cs" />
