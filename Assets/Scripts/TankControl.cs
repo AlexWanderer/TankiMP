@@ -56,6 +56,9 @@ public class TankControl : Photon.MonoBehaviour
     GripDetector grDetect;
     bool hasGrip;
 
+    private Vector3 compensation; //Вектор компенсации сноса. Для уменьшения заносов танка на поворотах
+    public float SlipCompensationMagnitude = 10;
+
     private ShootController marker;
 
     void Start()
@@ -115,10 +118,14 @@ public class TankControl : Photon.MonoBehaviour
             {
 
                 body.AddRelativeForce(-curPower * dir, 0, 0);
+
+                body.AddRelativeForce(compensation * SlipCompensationMagnitude); //Компенсируем тот снос, который не устраняет сила трения
             }
             else
             {
                 body.AddRelativeForce(curPower * (-dir), 0, 0);
+
+                body.AddRelativeForce(-compensation * SlipCompensationMagnitude);
             }
         }
     }
@@ -146,6 +153,18 @@ public class TankControl : Photon.MonoBehaviour
 
         float turnMom = TurnForce.Evaluate(Mathf.Abs(body.angularVelocity.y) / MaxTurnSpeed) * MaxTurnMomentum;
         curMomentum = turnMom;
+
+        Vector3 fwd;
+        fwd = transform.TransformDirection(1, 0, 0);
+        Debug.DrawLine(transform.position, transform.position + fwd, Color.cyan);
+        fwd.Normalize();
+
+        compensation = fwd - velocity.normalized;
+
+        Debug.DrawLine(transform.position, compensation, Color.blue);
+
+
+        
     }
 
     public void LookAtPoint(Vector3 point)

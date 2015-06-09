@@ -14,13 +14,23 @@ public class HealthManager : Photon.MonoBehaviour {
 
     private int killedBy;
 
+    public bool isBot = false;
+
 	void Awake () 
     {
+        plyMat.color = Color.green;
+
+
         gm = GameObject.Find("WorldOrigin").GetComponent<Game>();
 
         maxHealth = Health;
 
-        if (photonView.isMine)
+        if (!isBot)
+        {
+            gm.PlayerChars.Add(this.gameObject);
+        }
+
+        if ((photonView.isMine)&(!isBot))
         {
             Game.PlayerHP = Health;
         }
@@ -34,9 +44,10 @@ public class HealthManager : Photon.MonoBehaviour {
         maxHealth = maxHP;
         Name = n;
 
-        if (photonView.isMine)
+        if ((photonView.isMine) & (!isBot))
         {
             Game.PlayerHP = Health;
+
         }
 
         plyMat = Instantiate(GetComponent<Renderer>().material) as Material;
@@ -81,11 +92,16 @@ public class HealthManager : Photon.MonoBehaviour {
         {
             Health = 0;
         }
-        
+
+        if (!isBot)
+        {
+            gm.PlayerChars.Remove(this.gameObject); // выписываемся из списка игроков
+        }
+
 
         if (photonView.isMine)
         {
-            if (photonView.isMine)
+            if ((photonView.isMine) & (!isBot))
             {
                 Game.PlayerHP = Health;
             }
@@ -94,7 +110,11 @@ public class HealthManager : Photon.MonoBehaviour {
             if ((Health <= 0)&&(!dead))
             {
                 dead = true;
-                gm.PlayerKilled();
+                if (!isBot)
+                {
+                    gm.PlayerKilled();
+                }
+                
                 killedBy = owner;
                 photonView.RPC("Die",PhotonTargets.All, killedBy);
             }
@@ -119,18 +139,25 @@ public class HealthManager : Photon.MonoBehaviour {
     [RPC]
     public void Die(int whoKilled)
     {
-        Debug.Log(Name + " killed by " + PhotonNetwork.player.Get(whoKilled).name);
-        killedBy = whoKilled;
+        if (!isBot)
+        {
+            Debug.Log(Name + " killed by " + PhotonNetwork.player.Get(whoKilled).name);
+            killedBy = whoKilled;
+        }
+        
         dead = true;
         Health = 0;
         GameObject ded = Instantiate(DeadPrefab, this.transform.position, transform.rotation) as GameObject; //Не синхронизируем, так как физики они не имеют и не влияют на игру.
         if (photonView.isMine)
         {
             PhotonNetwork.player.Get(whoKilled).AddScore(1);
-
-            ExitGames.Client.Photon.Hashtable PlayerProperties = new ExitGames.Client.Photon.Hashtable();
-            PlayerProperties["Deaths"] = (int)PhotonNetwork.player.customProperties["Deaths"] + 1;
-            PhotonNetwork.player.SetCustomProperties(PlayerProperties);
+            if (!isBot)
+            {
+                ExitGames.Client.Photon.Hashtable PlayerProperties = new ExitGames.Client.Photon.Hashtable();
+                PlayerProperties["Deaths"] = (int)PhotonNetwork.player.customProperties["Deaths"] + 1;
+                PhotonNetwork.player.SetCustomProperties(PlayerProperties);
+            }
+            
 
             PhotonNetwork.Destroy(this.photonView);
         }

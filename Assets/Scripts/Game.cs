@@ -41,6 +41,8 @@ public class Game : Photon.MonoBehaviour {
     public static float PlayerHP = 100;
     public Text hpGUI;
 
+    public List<GameObject> PlayerChars = new List<GameObject>(); // Список локальных геймобъектов, представляющих игроков
+
     public static bool lockControls = false; // свойство для блокировки управления персонажем
 
    // bool 
